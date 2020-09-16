@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -32,6 +33,8 @@ public class User {
     @NotEmpty
     private String gender;
 
+    @Email
+    @NotEmpty
     private String email;
 
     private String phone;
