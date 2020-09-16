@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.api;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -37,7 +39,10 @@ public class RsController {
     }
 
     @GetMapping("/events")
-    public ResponseEntity<List<RsEvent>> getAllRsEvents() {
+    @JsonView(RsEvent.WithoutUserView.class)
+    public ResponseEntity<List<RsEvent>> getAllRsEvents(@RequestParam(required = false) Integer start,
+                                                        @RequestParam(required = false) Integer end) {
+
         return ResponseEntity.ok(rsList);
     }
 

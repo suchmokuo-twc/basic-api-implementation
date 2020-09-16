@@ -18,18 +18,20 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class RsEvent {
 
-    public interface WithoutUser {}
-    public interface WithUser extends WithoutUser {}
+    public interface WithoutUserView {}
+    public interface WithUserView extends WithoutUserView {}
 
     @NotEmpty
+    @JsonView(WithoutUserView.class)
     private String eventName;
 
     @NotEmpty
+    @JsonView(WithoutUserView.class)
     private String keyword;
 
     @Valid
     @NotNull
-    @JsonView(WithUser.class)
+    @JsonView(WithUserView.class)
     private User user;
 
     public RsEvent merge(RsEvent rsEvent) {
@@ -47,7 +49,7 @@ public class RsEvent {
     public String toJsonWithUser() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper
-                .writerWithView(WithUser.class)
+                .writerWithView(WithUserView.class)
                 .writeValueAsString(this);
     }
 }
