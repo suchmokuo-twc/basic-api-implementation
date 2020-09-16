@@ -9,8 +9,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -78,7 +82,7 @@ class RsControllerTest {
     @Test
     void should_create_rs_event() throws Exception {
         String newRsEventJson = RsEvent.builder()
-                .keyword("新事件")
+                .eventName("新事件")
                 .keyword("key1")
                 .user(User.builder()
                         .userName("abc")
@@ -94,5 +98,28 @@ class RsControllerTest {
                 .content(newRsEventJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void should_not_create_rs_event_when_empty_eventName() throws Exception {
+        String newRsEventJson = RsEvent.builder()
+                .eventName(null)
+                .keyword("key1")
+                .user(User.builder()
+                        .userName("abc")
+                        .age(20)
+                        .gender("male")
+                        .email("abc@twc.com")
+                        .phone("10000000000")
+                        .build())
+                .build()
+                .toJson();
+
+        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
     }
 }
