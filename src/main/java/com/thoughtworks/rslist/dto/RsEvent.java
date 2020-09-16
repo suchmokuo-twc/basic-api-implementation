@@ -1,5 +1,8 @@
 package com.thoughtworks.rslist.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class RsEvent {
 
     private String eventName;
@@ -24,5 +27,22 @@ public class RsEvent {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public RsEvent merge(RsEvent rsEvent) {
+        if (rsEvent.eventName != null) {
+            this.eventName = rsEvent.eventName;
+        }
+
+        if (rsEvent.keyword != null) {
+            this.keyword = rsEvent.keyword;
+        }
+
+        return this;
+    }
+
+    public String toJson() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(this);
     }
 }

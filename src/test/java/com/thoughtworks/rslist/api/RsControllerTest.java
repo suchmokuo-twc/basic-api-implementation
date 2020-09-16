@@ -1,7 +1,5 @@
 package com.thoughtworks.rslist.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.dto.RsEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,31 +31,31 @@ class RsControllerTest {
 
     @Test
     void should_update_rs_event() throws Exception {
-        String updatedRsEventJson = stringify(new RsEvent("第一条事件", "分类1"));
+        String rsEventWithNewKeywordJson = new RsEvent(null, "分类1").toJson();
 
         mockMvc.perform(put("/rs/event/1")
-                .content(updatedRsEventJson)
+                .content(rsEventWithNewKeywordJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(updatedRsEventJson));
+                .andExpect(jsonPath("$.keyword", is("分类1")))
+                .andExpect(jsonPath("$.eventName", is("第一条事件")));
+
+        String rsEventWithNewNameJson = new RsEvent("new name", null).toJson();
+
+        mockMvc.perform(put("/rs/event/1")
+                .content(rsEventWithNewNameJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.keyword", is("分类1")))
+                .andExpect(jsonPath("$.eventName", is("new name")));
     }
 
     @Test
     void should_delete_rs_event() throws Exception {
-        String deletedRsEventJson = stringify(new RsEvent("第一条事件", "无分类"));
+        String deletedRsEventJson = new RsEvent("第一条事件", "无分类").toJson();
 
         mockMvc.perform(delete("/rs/event/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(deletedRsEventJson));
-    }
-
-    private String stringify(RsEvent rsEvent) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(rsEvent);
-    }
-
-    private RsEvent parse(String rsEventJson) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(rsEventJson, RsEvent.class);
     }
 }

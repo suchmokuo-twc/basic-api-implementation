@@ -32,9 +32,11 @@ public class RsController {
     index--;
     validateIndex(index);
 
-    rsList.set(index, rsEvent);
+    RsEvent oldRsEvent = rsList.get(index);
+    RsEvent newRsEvent = oldRsEvent.merge(rsEvent);
+    rsList.set(index, newRsEvent);
 
-    return rsEvent;
+    return newRsEvent;
   }
 
   @DeleteMapping("/event/{index}")
