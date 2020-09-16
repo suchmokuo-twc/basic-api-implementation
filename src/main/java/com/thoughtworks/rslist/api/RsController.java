@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.api;
 import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thoughtworks.rslist.dto.RsEvent;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,20 +37,23 @@ public class RsController {
     }
 
     @GetMapping("/events")
-    public List<RsEvent> getAllRsEvents() {
-        return rsList;
+    public ResponseEntity<List<RsEvent>> getAllRsEvents() {
+        return ResponseEntity.ok(rsList);
     }
 
     @PostMapping("/events")
-    public RsEvent createRsEvent(@Valid @RequestBody RsEvent rsEvent) {
+    public ResponseEntity<RsEvent> createRsEvent(@Valid @RequestBody RsEvent rsEvent) {
         User user = rsEvent.getUser();
         userService.registerUser(user);
         rsList.add(rsEvent);
-        return rsEvent;
+        int index = rsList.size();
+        return ResponseEntity
+                .created(URI.create("/rs/events/" + index))
+                .body(rsEvent);
     }
 
     @PutMapping("/events/{index}")
-    public RsEvent updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int index) {
+    public ResponseEntity<RsEvent> updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int index) {
         index--;
         validateIndex(index);
 
@@ -56,15 +61,15 @@ public class RsController {
         RsEvent newRsEvent = oldRsEvent.merge(rsEvent);
         rsList.set(index, newRsEvent);
 
-        return newRsEvent;
+        return ResponseEntity.ok(newRsEvent);
     }
 
     @DeleteMapping("/events/{index}")
-    public RsEvent deleteRsEvent(@PathVariable int index) {
+    public ResponseEntity<RsEvent> deleteRsEvent(@PathVariable int index) {
         index--;
         validateIndex(index);
 
-        return rsList.remove(index);
+        return ResponseEntity.ok(rsList.remove(index));
     }
 
     private void validateIndex(int index) {
