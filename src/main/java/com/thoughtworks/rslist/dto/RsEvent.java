@@ -2,32 +2,24 @@ package com.thoughtworks.rslist.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RsEvent {
 
     private String eventName;
     private String keyword;
 
-    public RsEvent(String eventName, String keyword) {
-        this.eventName = eventName;
-        this.keyword = keyword;
-    }
-
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+    @Valid
+    private User user;
 
     public RsEvent merge(RsEvent rsEvent) {
         if (rsEvent.eventName != null) {

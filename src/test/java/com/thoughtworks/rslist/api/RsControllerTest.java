@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,6 +12,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -35,7 +37,10 @@ class RsControllerTest {
     
     @Test
     void should_update_rs_event() throws Exception {
-        String rsEventWithNewKeywordJson = new RsEvent(null, "分类1").toJson();
+        String rsEventWithNewKeywordJson = RsEvent.builder()
+                .keyword("分类1")
+                .build()
+                .toJson();
 
         mockMvc.perform(put("/rs/events/1")
                 .content(rsEventWithNewKeywordJson)
@@ -44,7 +49,10 @@ class RsControllerTest {
                 .andExpect(jsonPath("$.keyword", is("分类1")))
                 .andExpect(jsonPath("$.eventName", is("第一条事件")));
 
-        String rsEventWithNewNameJson = new RsEvent("new name", null).toJson();
+        String rsEventWithNewNameJson = RsEvent.builder()
+                .eventName("new name")
+                .build()
+                .toJson();
 
         mockMvc.perform(put("/rs/events/1")
                 .content(rsEventWithNewNameJson)
@@ -56,10 +64,35 @@ class RsControllerTest {
 
     @Test
     void should_delete_rs_event() throws Exception {
-        String deletedRsEventJson = new RsEvent("第一条事件", "无分类").toJson();
+        String deletedRsEventJson = RsEvent.builder()
+                .eventName("第一条事件")
+                .keyword("无分类")
+                .build()
+                .toJson();
 
-        mockMvc.perform(delete("/rs/event/1"))
+        mockMvc.perform(delete("/rs/events/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(deletedRsEventJson));
+    }
+
+    @Test
+    void should_create_rs_event() throws Exception {
+        String newRsEventJson = RsEvent.builder()
+                .keyword("新事件")
+                .keyword("key1")
+                .user(User.builder()
+                        .userName("abc")
+                        .age(20)
+                        .gender("male")
+                        .email("abc@twc.com")
+                        .phone("10000000000")
+                        .build())
+                .build()
+                .toJson();
+
+        mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
