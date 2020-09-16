@@ -254,4 +254,47 @@ class RsControllerTest {
 
         assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
     }
+
+    @Test
+    void should_not_create_rs_event_when_invalid_user_age() throws Exception {
+        String rsEventWithUserAge17Json = RsEvent.builder()
+                .eventName("name")
+                .keyword("key1")
+                .user(User.builder()
+                        .userName("abc")
+                        .age(17)
+                        .gender("male")
+                        .email("abc@twc.com")
+                        .phone("10000000000")
+                        .build())
+                .build()
+                .toJson();
+
+        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
+                .content(rsEventWithUserAge17Json)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
+
+        String rsEventWithUserAge101Json = RsEvent.builder()
+                .eventName("name")
+                .keyword("key1")
+                .user(User.builder()
+                        .userName("abc")
+                        .age(101)
+                        .gender("male")
+                        .email("abc@twc.com")
+                        .phone("10000000000")
+                        .build())
+                .build()
+                .toJson();
+
+        mvcResult = mockMvc.perform(post("/rs/events")
+                .content(rsEventWithUserAge101Json)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
+    }
 }
