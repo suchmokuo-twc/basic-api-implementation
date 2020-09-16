@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -17,6 +18,7 @@ public class User {
 
     @EqualsAndHashCode.Include
     @NotEmpty
+    @Size(max = 8)
     private String userName;
 
     private Integer age;
