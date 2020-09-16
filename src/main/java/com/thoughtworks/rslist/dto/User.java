@@ -23,6 +23,7 @@ public class User {
 
     private Integer age;
 
+    @NotEmpty
     private String gender;
 
     private String email;
