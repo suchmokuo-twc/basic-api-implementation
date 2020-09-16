@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +24,7 @@ public class RsEvent {
     private String keyword;
 
     @Valid
+    @NotNull
     private User user;
 
     public RsEvent merge(RsEvent rsEvent) {

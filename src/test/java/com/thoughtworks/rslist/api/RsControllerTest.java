@@ -145,4 +145,21 @@ class RsControllerTest {
 
         assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
     }
+
+    @Test
+    void should_not_create_rs_event_when_empty_user() throws Exception {
+        String newRsEventJson = RsEvent.builder()
+                .eventName("name")
+                .keyword("key1")
+                .user(null)
+                .build()
+                .toJson();
+
+        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
+    }
 }
