@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.dto;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,9 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class RsEvent {
 
+    public interface WithoutUser {}
+    public interface WithUser extends WithoutUser {}
+
     @NotEmpty
     private String eventName;
 
@@ -25,6 +29,7 @@ public class RsEvent {
 
     @Valid
     @NotNull
+    @JsonView(WithUser.class)
     private User user;
 
     public RsEvent merge(RsEvent rsEvent) {
@@ -39,8 +44,10 @@ public class RsEvent {
         return this;
     }
 
-    public String toJson() throws JsonProcessingException {
+    public String toJsonWithUser() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(this);
+        return objectMapper
+                .writerWithView(WithUser.class)
+                .writeValueAsString(this);
     }
 }
