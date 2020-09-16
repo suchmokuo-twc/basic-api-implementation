@@ -12,7 +12,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -332,6 +331,29 @@ class RsControllerTest {
                         .gender("male")
                         .email("abc")
                         .phone("10000000000")
+                        .build())
+                .build()
+                .toJson();
+
+        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
+    }
+
+    @Test
+    void should_not_create_rs_event_when_invalid_user_phone() throws Exception {
+        String newRsEventJson = RsEvent.builder()
+                .eventName("name")
+                .keyword("key1")
+                .user(User.builder()
+                        .userName("abc")
+                        .age(20)
+                        .gender("male")
+                        .email("abc")
+                        .phone("20000000000")
                         .build())
                 .build()
                 .toJson();
