@@ -12,6 +12,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thoughtworks.rslist.dto.RsEvent;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -87,15 +88,12 @@ public class RsController extends BaseController {
                 .body(rsEvent);
     }
 
-    @PutMapping("/events/{index}")
-    public ResponseEntity<RsEvent> updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int index) {
-        index--;
+    @PatchMapping("/events/{id}")
+    public ResponseEntity<RsEvent> updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int id) {
+        rsEvent.setId(id);
+        RsEvent updatedRsEvent = rsEventService.updateRsEvent(rsEvent);
 
-        RsEvent oldRsEvent = rsList.get(index);
-        RsEvent newRsEvent = oldRsEvent.merge(rsEvent);
-        rsList.set(index, newRsEvent);
-
-        return ResponseEntity.ok(newRsEvent);
+        return ResponseEntity.ok(updatedRsEvent);
     }
 
     @DeleteMapping("/events/{index}")

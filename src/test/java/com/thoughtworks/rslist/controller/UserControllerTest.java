@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.thoughtworks.rslist.utils.DtoUtil.createDemoUser;
+import static com.thoughtworks.rslist.utils.EntityUtil.createDemoUserEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -62,7 +64,7 @@ class UserControllerTest {
 
     @Test
     void should_insert_user() throws Exception {
-        User user = createFakeUser();
+        User user = createDemoUser();
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +86,7 @@ class UserControllerTest {
 
     @Test
     void should_get_user_by_id() throws Exception {
-        UserEntity fakeUserEntity = createFakeUserEntity();
+        UserEntity fakeUserEntity = createDemoUserEntity();
 
         fakeUserEntity = userRepository.save(fakeUserEntity);
 
@@ -102,7 +104,7 @@ class UserControllerTest {
 
     @Test
     void should_delete_user_by_id() throws Exception {
-        UserEntity fakeUserEntity = createFakeUserEntity();
+        UserEntity fakeUserEntity = createDemoUserEntity();
 
         fakeUserEntity = userRepository.save(fakeUserEntity);
 
@@ -114,7 +116,7 @@ class UserControllerTest {
 
     @Test
     void should_delete_user_and_all_events() throws Exception {
-        UserEntity fakeUserEntity = userRepository.save(createFakeUserEntity());
+        UserEntity fakeUserEntity = userRepository.save(createDemoUserEntity());
         Integer userId = fakeUserEntity.getId();
 
         rsEventRepository.save(RsEventEntity.builder()
@@ -134,25 +136,5 @@ class UserControllerTest {
 
         assertFalse(userRepository.existsById(fakeUserEntity.getId()));
         assertTrue(rsEventRepository.findAllByUserId(userId).isEmpty());
-    }
-
-    private UserEntity createFakeUserEntity() {
-        return UserEntity.builder()
-                .userName("name")
-                .age(20)
-                .email("a@b.com")
-                .gender("male")
-                .phone("10000000000")
-                .build();
-    }
-
-    private User createFakeUser() {
-        return User.builder()
-                .userName("name")
-                .age(20)
-                .email("a@b.com")
-                .gender("male")
-                .phone("10000000000")
-                .build();
     }
 }

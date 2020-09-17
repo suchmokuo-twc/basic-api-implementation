@@ -26,12 +26,25 @@ public class RsEventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String eventName;
 
+    @Column(nullable = false)
     private String keyword;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    public RsEventEntity merge(RsEventEntity rsEventEntity) {
+        if (rsEventEntity.eventName != null) {
+            this.eventName = rsEventEntity.eventName;
+        }
+
+        if (rsEventEntity.keyword != null) {
+            this.keyword = rsEventEntity.keyword;
+        }
+
+        return this;
+    }
 }

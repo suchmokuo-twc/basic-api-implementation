@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
@@ -14,10 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static com.thoughtworks.rslist.utils.EntityUtil.createDemoRsEventEntity;
+import static com.thoughtworks.rslist.utils.EntityUtil.createDemoUserEntity;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -63,29 +68,45 @@ class RsControllerTest {
     
     @Test
     void should_update_rs_event() throws Exception {
+        UserEntity demoUserEntity = userRepository.save(createDemoUserEntity());
+        RsEventEntity rsEventEntity = rsEventRepository.save(createDemoRsEventEntity(demoUserEntity));
+
         String rsEventWithNewKeywordJson = RsEvent.builder()
                 .keyword("分类1")
+                .userId(demoUserEntity.getId())
                 .build()
                 .toJson();
 
-        mockMvc.perform(put("/rs/events/1")
+        Integer rsEventId = rsEventEntity.getId();
+
+        mockMvc.perform(patch("/rs/events/" + rsEventId)
                 .content(rsEventWithNewKeywordJson)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.keyword", is("分类1")))
-                .andExpect(jsonPath("$.eventName", is("第一条事件")));
+                .andExpect(status().isOk());
 
-        String rsEventWithNewNameJson = RsEvent.builder()
-                .eventName("new name")
+        RsEventEntity updatedRsEventEntity = rsEventRepository.findById(rsEventId).get();
+
+        assertEquals(updatedRsEventEntity.getEventName(), rsEventEntity.getEventName());
+        assertEquals(updatedRsEventEntity.getKeyword(), "分类1");
+    }
+
+    @Test
+    void should_not_update_rs_event_when_invalid_userId() throws Exception {
+        UserEntity demoUserEntity = userRepository.save(createDemoUserEntity());
+        RsEventEntity rsEventEntity = rsEventRepository.save(createDemoRsEventEntity(demoUserEntity));
+
+        String rsEventWithNewKeywordJson = RsEvent.builder()
+                .keyword("分类1")
+                .userId(demoUserEntity.getId() + 1)
                 .build()
                 .toJson();
 
-        mockMvc.perform(put("/rs/events/1")
-                .content(rsEventWithNewNameJson)
+        Integer rsEventId = rsEventEntity.getId();
+
+        mockMvc.perform(patch("/rs/events/" + rsEventId)
+                .content(rsEventWithNewKeywordJson)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.keyword", is("分类1")))
-                .andExpect(jsonPath("$.eventName", is("new name")));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
