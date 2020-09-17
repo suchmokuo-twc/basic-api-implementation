@@ -9,6 +9,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,5 +24,12 @@ class UserControllerTest {
     void should_get_users() throws Exception {
         mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$[0].user_name").exists());
+    }
+
+    @Test
+    void should_get_error_when_use_base_controller() throws Exception {
+        mockMvc.perform(get("/users/error"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid user")));
     }
 }

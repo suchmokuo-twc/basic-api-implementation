@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.dto.User;
+import com.thoughtworks.rslist.exception.InvalidUserException;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users", produces = "application/json; charset=utf-8")
-public class UserController {
+public class UserController extends BaseController {
 
     @Autowired
     private UserService userService;
@@ -20,5 +21,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/error")
+    public ResponseEntity<String> getError() {
+        throw new InvalidUserException();
     }
 }

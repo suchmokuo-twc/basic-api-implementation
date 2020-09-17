@@ -1,15 +1,14 @@
-package com.thoughtworks.rslist.exception;
+package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.dto.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-//@ControllerAdvice
-public class GlobalExceptionHandler {
+public class BaseController {
 
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ErrorResponse> handleException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         ResponseStatus responseStatus = ex.getClass().getAnnotation(ResponseStatus.class);
 
         if (responseStatus == null) {

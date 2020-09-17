@@ -374,4 +374,31 @@ class RsControllerTest {
 
         assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
     }
+
+    @Test
+    void should_get_event_error_when_out_of_range() throws Exception {
+        mockMvc.perform(get("/rs/events?start=1&end=10"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid request param")));
+    }
+
+    @Test
+    void should_get_event_error_when_invalid_index() throws Exception {
+        mockMvc.perform(get("/rs/events/10"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid index")));
+    }
+
+    @Test
+    void should_create_rs_event_error_when_invalid_param() throws Exception {
+        String newRsEventJson = RsEvent.builder()
+                .build()
+                .toJsonWithUser();
+
+        mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
+    }
 }

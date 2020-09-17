@@ -2,9 +2,13 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thoughtworks.rslist.dto.User;
+import com.thoughtworks.rslist.exception.InvalidIndexException;
+import com.thoughtworks.rslist.exception.InvalidParamException;
+import com.thoughtworks.rslist.exception.InvalidRequestParamException;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thoughtworks.rslist.dto.RsEvent;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/rs", produces = "application/json; charset=utf-8")
-public class RsController {
+public class RsController extends BaseController {
 
     @Autowired
     private UserService userService;
@@ -43,11 +47,33 @@ public class RsController {
     public ResponseEntity<List<RsEvent>> getAllRsEvents(@RequestParam(required = false) Integer start,
                                                         @RequestParam(required = false) Integer end) {
 
-        return ResponseEntity.ok(rsList);
+        if (start == null && end == null) {
+            return ResponseEntity.ok(rsList);
+        }
+
+        try {
+            return ResponseEntity.ok(rsList.subList(start - 1, end));
+        } catch (Exception ex) {
+            throw new InvalidRequestParamException();
+        }
+    }
+
+    @GetMapping("/events/{index}")
+    @JsonView(RsEvent.WithoutUserView.class)
+    public ResponseEntity<RsEvent> getEvent(@PathVariable int index) {
+        try {
+            return ResponseEntity.ok(rsList.get(index));
+        } catch (Exception ex) {
+            throw new InvalidIndexException();
+        }
     }
 
     @PostMapping("/events")
-    public ResponseEntity<RsEvent> createRsEvent(@Valid @RequestBody RsEvent rsEvent) {
+    public ResponseEntity<RsEvent> createRsEvent(@Valid @RequestBody RsEvent rsEvent, Errors errors) {
+        if (errors.hasErrors()) {
+            throw new InvalidParamException();
+        }
+
         User user = rsEvent.getUser();
         userService.registerUser(user);
         rsList.add(rsEvent);
@@ -60,7 +86,6 @@ public class RsController {
     @PutMapping("/events/{index}")
     public ResponseEntity<RsEvent> updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int index) {
         index--;
-        validateIndex(index);
 
         RsEvent oldRsEvent = rsList.get(index);
         RsEvent newRsEvent = oldRsEvent.merge(rsEvent);
@@ -72,14 +97,7 @@ public class RsController {
     @DeleteMapping("/events/{index}")
     public ResponseEntity<RsEvent> deleteRsEvent(@PathVariable int index) {
         index--;
-        validateIndex(index);
 
         return ResponseEntity.ok(rsList.remove(index));
-    }
-
-    private void validateIndex(int index) {
-        if (index < 0 || index >= rsList.size()) {
-            throw new RuntimeException("index out of range");
-        }
     }
 }
