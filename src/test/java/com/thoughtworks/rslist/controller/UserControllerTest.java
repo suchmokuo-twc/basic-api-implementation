@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -57,13 +59,7 @@ class UserControllerTest {
 
     @Test
     void should_insert_user() throws Exception {
-        User user = User.builder()
-                .userName("name")
-                .age(20)
-                .email("a@b.com")
-                .gender("male")
-                .phone("10000000000")
-                .build();
+        User user = createFakeUser();
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -81,5 +77,55 @@ class UserControllerTest {
         assertEquals(insertedUserEntity.getEmail(), user.getEmail());
         assertEquals(insertedUserEntity.getGender(), user.getGender());
         assertEquals(insertedUserEntity.getPhone(), user.getPhone());
+    }
+
+    @Test
+    void should_get_user_by_id() throws Exception {
+        UserEntity fakeUserEntity = createFakeUserEntity();
+
+        fakeUserEntity = userRepository.save(fakeUserEntity);
+
+        assertEquals(fakeUserEntity.getId(), 1);
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.user_id", is(fakeUserEntity.getId())))
+                .andExpect(jsonPath("$.user_name", is(fakeUserEntity.getUserName())))
+                .andExpect(jsonPath("$.user_age", is(fakeUserEntity.getAge())))
+                .andExpect(jsonPath("$.user_gender", is(fakeUserEntity.getGender())))
+                .andExpect(jsonPath("$.user_email", is(fakeUserEntity.getEmail())))
+                .andExpect(jsonPath("$.user_phone", is(fakeUserEntity.getPhone())));
+    }
+
+    @Test
+    void should_delete_user_by_id() throws Exception {
+        UserEntity fakeUserEntity = createFakeUserEntity();
+
+        fakeUserEntity = userRepository.save(fakeUserEntity);
+
+        mockMvc.perform(delete("/users/" + fakeUserEntity.getId()))
+                .andExpect(status().isOk());
+
+        assertFalse(userRepository.existsById(fakeUserEntity.getId()));
+    }
+
+    private UserEntity createFakeUserEntity() {
+        return UserEntity.builder()
+                .userName("name")
+                .age(20)
+                .email("a@b.com")
+                .gender("male")
+                .phone("10000000000")
+                .build();
+    }
+
+    private User createFakeUser() {
+        return User.builder()
+                .userName("name")
+                .age(20)
+                .email("a@b.com")
+                .gender("male")
+                .phone("10000000000")
+                .build();
     }
 }

@@ -22,6 +22,7 @@ import javax.validation.constraints.Size;
 @Builder
 public class User extends BaseDto {
 
+    @JsonProperty("user_id")
     private Integer id;
 
     @EqualsAndHashCode.Include

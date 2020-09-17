@@ -2,8 +2,10 @@ package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.exception.UserNotFoundException;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -60,5 +62,26 @@ public class UserService {
         List<User> list = new ArrayList<>(users.size());
         list.addAll(users);
         return list;
+    }
+
+    public User getUserById(int id) {
+        return userRepository.findById(id)
+                .map(userEntity -> User.builder()
+                        .id(userEntity.getId())
+                        .userName(userEntity.getUserName())
+                        .age(userEntity.getAge())
+                        .email(userEntity.getEmail())
+                        .phone(userEntity.getPhone())
+                        .gender(userEntity.getGender())
+                        .build())
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    public void deleteUserById(int id) {
+        try {
+            userRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new UserNotFoundException();
+        }
     }
 }
