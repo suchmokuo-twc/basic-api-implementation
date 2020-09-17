@@ -51,6 +51,8 @@ class UserControllerTest {
 
     @Test
     void should_get_users() throws Exception {
+        userRepository.save(createDemoUserEntity());
+
         mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$[0].user_name").exists());
     }

@@ -16,8 +16,10 @@ public interface RsEventRepository extends CrudRepository<RsEventEntity, Integer
         RsEventEntity oldRsEventEntity = this.findById(rsEventEntity.getId())
                 .orElseThrow(RsEventNotFoundException::new);
 
-        this.save(oldRsEventEntity.merge(rsEventEntity));
+        RsEventEntity updatedRsEventEntity = oldRsEventEntity.merge(rsEventEntity);
 
-        return oldRsEventEntity;
+        this.save(updatedRsEventEntity);
+
+        return updatedRsEventEntity;
     }
 }
