@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.entity;
 
+import com.thoughtworks.rslist.dto.RsEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,5 +47,16 @@ public class RsEventEntity {
         }
 
         return this;
+    }
+
+    public static RsEventEntity from(RsEvent rsEvent) {
+        return RsEventEntity.builder()
+                .id(rsEvent.getId())
+                .eventName(rsEvent.getEventName())
+                .keyword(rsEvent.getKeyword())
+                .user(UserEntity.builder()
+                        .id(rsEvent.getUserId())
+                        .build())
+                .build();
     }
 }

@@ -2,7 +2,6 @@ package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.entity.RsEventEntity;
-import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.exception.InvalidUserIdException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
@@ -25,20 +24,9 @@ public class RsEventService {
             throw new InvalidUserIdException();
         }
 
-        RsEventEntity savedRsEventEntity = rsEventRepository.save(RsEventEntity.builder()
-                .eventName(rsEvent.getEventName())
-                .keyword(rsEvent.getKeyword())
-                .user(UserEntity.builder()
-                        .id(userId)
-                        .build())
-                .build());
+        RsEventEntity savedRsEventEntity = rsEventRepository.save(RsEventEntity.from(rsEvent));
 
-        return RsEvent.builder()
-                .id(savedRsEventEntity.getId())
-                .eventName(savedRsEventEntity.getEventName())
-                .keyword(savedRsEventEntity.getKeyword())
-                .userId(savedRsEventEntity.getUser().getId())
-                .build();
+        return RsEvent.from(savedRsEventEntity);
     }
 
     public RsEvent updateRsEvent(RsEvent rsEvent) {
@@ -49,20 +37,8 @@ public class RsEventService {
             throw new InvalidUserIdException();
         }
 
-        RsEventEntity updatedRsEventEntity = rsEventRepository.update(RsEventEntity.builder()
-                .id(rsEvent.getId())
-                .eventName(rsEvent.getEventName())
-                .keyword(rsEvent.getKeyword())
-                .user(UserEntity.builder()
-                        .id(rsEvent.getUserId())
-                        .build())
-                .build());
+        RsEventEntity updatedRsEventEntity = rsEventRepository.update(RsEventEntity.from(rsEvent));
 
-        return RsEvent.builder()
-                .id(updatedRsEventEntity.getId())
-                .eventName(updatedRsEventEntity.getEventName())
-                .keyword(updatedRsEventEntity.getKeyword())
-                .userId(updatedRsEventEntity.getUser().getId())
-                .build();
+        return RsEvent.from(updatedRsEventEntity);
     }
 }

@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.dto;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.entity.RsEventEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,5 +57,14 @@ public class RsEvent extends BaseDto {
         return objectMapper
                 .writerWithView(WithUserView.class)
                 .writeValueAsString(this);
+    }
+
+    public static RsEvent from(RsEventEntity rsEventEntity) {
+        return RsEvent.builder()
+                .id(rsEventEntity.getId())
+                .eventName(rsEventEntity.getEventName())
+                .keyword(rsEventEntity.getKeyword())
+                .userId(rsEventEntity.getUser().getId())
+                .build();
     }
 }
