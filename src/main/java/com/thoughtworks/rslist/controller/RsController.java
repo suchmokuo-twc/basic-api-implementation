@@ -1,10 +1,10 @@
 package com.thoughtworks.rslist.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.thoughtworks.rslist.dto.User;
 import com.thoughtworks.rslist.exception.InvalidIndexException;
 import com.thoughtworks.rslist.exception.InvalidParamException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
+import com.thoughtworks.rslist.service.RsEventService;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,9 @@ public class RsController extends BaseController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RsEventService rsEventService;
 
     private final List<RsEvent> rsList;
 
@@ -74,12 +77,13 @@ public class RsController extends BaseController {
             throw new InvalidParamException();
         }
 
-        User user = rsEvent.getUser();
-        userService.registerUser(user);
-        rsList.add(rsEvent);
-        int index = rsList.size();
+        RsEvent createdRsEvent = rsEventService.createRsEvent(rsEvent);
+
+        Integer userId = rsEvent.getUserId();
+        int eventId = createdRsEvent.getId();
+
         return ResponseEntity
-                .created(URI.create("/rs/events/" + index))
+                .created(URI.create("/rs/events/" + eventId))
                 .body(rsEvent);
     }
 

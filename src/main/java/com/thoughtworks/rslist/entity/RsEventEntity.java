@@ -13,25 +13,22 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "user")
+@Table(name = "rs_event")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEntity {
+public class RsEventEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "name")
-    private String userName;
+    private String eventName;
 
-    private Integer age;
+    private String keyword;
 
-    private String gender;
-
-    private String email;
-
-    private String phone;
+    @Column(name = "user_id")
+    private Integer userId;
 }

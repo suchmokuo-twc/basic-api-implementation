@@ -23,6 +23,8 @@ public class RsEvent extends BaseDto {
     public interface WithoutUserView {}
     public interface WithUserView extends WithoutUserView {}
 
+    private Integer id;
+
     @NotEmpty
     @JsonView(WithoutUserView.class)
     private String eventName;
@@ -34,7 +36,7 @@ public class RsEvent extends BaseDto {
     @Valid
     @NotNull
     @JsonView(WithUserView.class)
-    private User user;
+    private Integer userId;
 
     public RsEvent merge(RsEvent rsEvent) {
         if (rsEvent.eventName != null) {

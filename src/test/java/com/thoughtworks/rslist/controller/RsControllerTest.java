@@ -1,7 +1,10 @@
 package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.RsEvent;
-import com.thoughtworks.rslist.dto.User;
+import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,6 +34,18 @@ class RsControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    RsEventRepository rsEventRepository;
+
+    @BeforeEach
+    void init() {
+        userRepository.deleteAll();
+        rsEventRepository.deleteAll();
+    }
 
     @Test
     void should_get_all_rs_events() throws Exception {
@@ -88,16 +103,20 @@ class RsControllerTest {
 
     @Test
     void should_create_rs_event() throws Exception {
+        UserEntity userEntity = userRepository.save(UserEntity.builder()
+                .userName("name")
+                .age(20)
+                .email("a@b.com")
+                .gender("male")
+                .phone("10000000000")
+                .build());
+
+        Integer userId = userEntity.getId();
+
         String newRsEventJson = RsEvent.builder()
                 .eventName("新事件")
                 .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
+                .userId(userId)
                 .build()
                 .toJson();
 
@@ -105,7 +124,24 @@ class RsControllerTest {
                 .content(newRsEventJson)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", is("/rs/events/4")));
+                .andExpect(header().string("Location", is("/rs/events/1")));
+    }
+
+    @Test
+    void should_not_create_rs_event_when_invalid_userId() throws Exception {
+        Integer userId = 123;
+
+        String newRsEventJson = RsEvent.builder()
+                .eventName("新事件")
+                .keyword("key1")
+                .userId(userId)
+                .build()
+                .toJson();
+
+        mockMvc.perform(post("/rs/events")
+                .content(newRsEventJson)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -113,13 +149,7 @@ class RsControllerTest {
         String newRsEventJson = RsEvent.builder()
                 .eventName(null)
                 .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
+                .userId(1)
                 .build()
                 .toJson();
 
@@ -136,13 +166,7 @@ class RsControllerTest {
         String newRsEventJson = RsEvent.builder()
                 .eventName("name")
                 .keyword(null)
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
+                .userId(1)
                 .build()
                 .toJson();
 
@@ -155,215 +179,11 @@ class RsControllerTest {
     }
 
     @Test
-    void should_not_create_rs_event_when_empty_user() throws Exception {
+    void should_not_create_rs_event_when_empty_userId() throws Exception {
         String newRsEventJson = RsEvent.builder()
                 .eventName("name")
                 .keyword("key1")
-                .user(null)
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_empty_userName() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName(null)
-                        .age(20)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_userName_is_longer_than_8() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("123456789")
-                        .age(20)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_empty_user_gender() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender(null)
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_empty_user_age() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(null)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_invalid_user_age() throws Exception {
-        String rsEventWithUserAge17Json = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(17)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(rsEventWithUserAge17Json)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-
-        String rsEventWithUserAge101Json = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(101)
-                        .gender("male")
-                        .email("abc@twc.com")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        mvcResult = mockMvc.perform(post("/rs/events")
-                .content(rsEventWithUserAge101Json)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_empty_user_email() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email(null)
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_invalid_user_email() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email("abc")
-                        .phone("10000000000")
-                        .build())
-                .build()
-                .toJson();
-
-        MvcResult mvcResult = mockMvc.perform(post("/rs/events")
-                .content(newRsEventJson)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        assertNotEquals(mvcResult.getResponse().getStatus(), OK.value());
-    }
-
-    @Test
-    void should_not_create_rs_event_when_invalid_user_phone() throws Exception {
-        String newRsEventJson = RsEvent.builder()
-                .eventName("name")
-                .keyword("key1")
-                .user(User.builder()
-                        .userName("abc")
-                        .age(20)
-                        .gender("male")
-                        .email("abc")
-                        .phone("20000000000")
-                        .build())
+                .userId(null)
                 .build()
                 .toJson();
 
