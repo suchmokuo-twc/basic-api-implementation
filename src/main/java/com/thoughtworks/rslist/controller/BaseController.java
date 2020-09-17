@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist.api;
+package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.ErrorResponse;
 import org.springframework.http.ResponseEntity;

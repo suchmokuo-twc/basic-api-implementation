@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist.api;
+package com.thoughtworks.rslist.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thoughtworks.rslist.dto.User;

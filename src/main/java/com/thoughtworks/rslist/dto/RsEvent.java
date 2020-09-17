@@ -6,17 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RsEvent {
+public class RsEvent extends BaseDto {
 
     public interface WithoutUserView {}
     public interface WithUserView extends WithoutUserView {}
@@ -46,7 +48,8 @@ public class RsEvent {
         return this;
     }
 
-    public String toJsonWithUser() throws JsonProcessingException {
+    @Override
+    public String toJson() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper
                 .writerWithView(WithUserView.class)

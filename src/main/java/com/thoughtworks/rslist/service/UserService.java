@@ -1,6 +1,9 @@
 package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.dto.User;
+import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,6 +16,9 @@ public class UserService {
 
     private final Set<User> users = new HashSet<>();
 
+    @Autowired
+    private UserRepository userRepository;
+
     public UserService() {
         users.add(User.builder()
                 .userName("mokuo")
@@ -23,8 +29,31 @@ public class UserService {
                 .build());
     }
 
-    public void registerUser(User user) {
+    // old api
+    public User registerUser(User user) {
         users.add(user);
+        return user;
+    }
+
+    public User register(User user) {
+        UserEntity userEntity = UserEntity.builder()
+                .userName(user.getUserName())
+                .age(user.getAge())
+                .email(user.getEmail())
+                .gender(user.getGender())
+                .phone(user.getPhone())
+                .build();
+
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        return User.builder()
+                .id(savedUserEntity.getId())
+                .userName(savedUserEntity.getUserName())
+                .gender(savedUserEntity.getGender())
+                .email(savedUserEntity.getEmail())
+                .phone(savedUserEntity.getPhone())
+                .age(savedUserEntity.getAge())
+                .build();
     }
 
     public List<User> getAllUsers() {

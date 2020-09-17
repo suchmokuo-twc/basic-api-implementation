@@ -1,4 +1,4 @@
-package com.thoughtworks.rslist.api;
+package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.dto.User;
@@ -51,7 +51,7 @@ class RsControllerTest {
         String rsEventWithNewKeywordJson = RsEvent.builder()
                 .keyword("分类1")
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mockMvc.perform(put("/rs/events/1")
                 .content(rsEventWithNewKeywordJson)
@@ -63,7 +63,7 @@ class RsControllerTest {
         String rsEventWithNewNameJson = RsEvent.builder()
                 .eventName("new name")
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mockMvc.perform(put("/rs/events/1")
                 .content(rsEventWithNewNameJson)
@@ -79,7 +79,7 @@ class RsControllerTest {
                 .eventName("第一条事件")
                 .keyword("无分类")
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mockMvc.perform(delete("/rs/events/1"))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -121,7 +121,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -144,7 +144,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -161,7 +161,7 @@ class RsControllerTest {
                 .keyword("key1")
                 .user(null)
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -184,7 +184,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -207,7 +207,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -230,7 +230,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -253,7 +253,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -276,7 +276,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(rsEventWithUserAge17Json)
@@ -296,7 +296,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mvcResult = mockMvc.perform(post("/rs/events")
                 .content(rsEventWithUserAge101Json)
@@ -319,7 +319,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -342,7 +342,7 @@ class RsControllerTest {
                         .phone("10000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -365,7 +365,7 @@ class RsControllerTest {
                         .phone("20000000000")
                         .build())
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         MvcResult mvcResult = mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
@@ -393,7 +393,7 @@ class RsControllerTest {
     void should_create_rs_event_error_when_invalid_param() throws Exception {
         String newRsEventJson = RsEvent.builder()
                 .build()
-                .toJsonWithUser();
+                .toJson();
 
         mockMvc.perform(post("/rs/events")
                 .content(newRsEventJson)
