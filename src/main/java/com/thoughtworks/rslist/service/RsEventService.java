@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.entity.RsEventEntity;
+import com.thoughtworks.rslist.entity.UserEntity;
 import com.thoughtworks.rslist.exception.InvalidUserException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
@@ -27,14 +28,16 @@ public class RsEventService {
         RsEventEntity savedRsEventEntity = rsEventRepository.save(RsEventEntity.builder()
                 .eventName(rsEvent.getEventName())
                 .keyword(rsEvent.getKeyword())
-                .userId(rsEvent.getUserId())
+                .user(UserEntity.builder()
+                        .id(userId)
+                        .build())
                 .build());
 
         return RsEvent.builder()
                 .id(savedRsEventEntity.getId())
                 .eventName(savedRsEventEntity.getEventName())
                 .keyword(savedRsEventEntity.getKeyword())
-                .userId(savedRsEventEntity.getUserId())
+                .userId(savedRsEventEntity.getUser().getId())
                 .build();
     }
 }

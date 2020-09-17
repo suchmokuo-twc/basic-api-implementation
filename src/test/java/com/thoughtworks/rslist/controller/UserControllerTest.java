@@ -1,9 +1,10 @@
 package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.User;
+import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
-import com.thoughtworks.rslist.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,14 +36,15 @@ class UserControllerTest {
     MockMvc mockMvc;
 
     @Autowired
-    UserService userService;
+    UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    RsEventRepository rsEventRepository;
 
     @BeforeEach
     void init() {
         userRepository.deleteAll();
+        rsEventRepository.deleteAll();
     }
 
     @Test
@@ -107,6 +110,30 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         assertFalse(userRepository.existsById(fakeUserEntity.getId()));
+    }
+
+    @Test
+    void should_delete_user_and_all_events() throws Exception {
+        UserEntity fakeUserEntity = userRepository.save(createFakeUserEntity());
+        Integer userId = fakeUserEntity.getId();
+
+        rsEventRepository.save(RsEventEntity.builder()
+                .eventName("1")
+                .keyword("1")
+                .user(fakeUserEntity)
+                .build());
+
+        rsEventRepository.save(RsEventEntity.builder()
+                .eventName("2")
+                .keyword("2")
+                .user(fakeUserEntity)
+                .build());
+
+        mockMvc.perform(delete("/users/" + fakeUserEntity.getId()))
+                .andExpect(status().isOk());
+
+        assertFalse(userRepository.existsById(fakeUserEntity.getId()));
+        assertTrue(rsEventRepository.findAllByUserId(userId).isEmpty());
     }
 
     private UserEntity createFakeUserEntity() {
