@@ -80,7 +80,6 @@ public class RsController extends BaseController {
 
         RsEvent createdRsEvent = rsEventService.createRsEvent(rsEvent);
 
-        Integer userId = rsEvent.getUserId();
         int eventId = createdRsEvent.getId();
 
         return ResponseEntity

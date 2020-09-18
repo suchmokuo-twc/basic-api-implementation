@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.service;
 import com.thoughtworks.rslist.dto.RsEvent;
 import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.exception.InvalidUserIdException;
+import com.thoughtworks.rslist.exception.RsEventNotFoundException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,13 @@ public class RsEventService {
             throw new InvalidUserIdException();
         }
 
-        RsEventEntity updatedRsEventEntity = rsEventRepository.update(RsEventEntity.from(rsEvent));
+        RsEventEntity rsEventEntity = RsEventEntity.from(rsEvent);
+        RsEventEntity oldRsEventEntity = rsEventRepository.findById(rsEventEntity.getId())
+                .orElseThrow(RsEventNotFoundException::new);
+
+        RsEventEntity updatedRsEventEntity = oldRsEventEntity.merge(rsEventEntity);
+
+        rsEventRepository.save(updatedRsEventEntity);
 
         return RsEvent.from(updatedRsEventEntity);
     }

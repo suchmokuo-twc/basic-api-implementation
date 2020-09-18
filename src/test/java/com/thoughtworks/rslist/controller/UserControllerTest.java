@@ -18,6 +18,7 @@ import java.util.List;
 
 import static com.thoughtworks.rslist.utils.DtoUtil.createDemoUser;
 import static com.thoughtworks.rslist.utils.EntityUtil.createDemoUserEntity;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +56,12 @@ class UserControllerTest {
 
         mockMvc.perform(get("/users"))
                 .andExpect(jsonPath("$[0].user_name").exists());
+    }
+
+    @Test
+    void should_get_empty_users() throws Exception {
+        mockMvc.perform(get("/users"))
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
