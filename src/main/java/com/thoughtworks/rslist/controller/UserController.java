@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users", produces = "application/json; charset=utf-8")
-public class UserController extends BaseController {
+public class UserController {
 
     @Autowired
     private UserService userService;
