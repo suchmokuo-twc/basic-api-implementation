@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.exception.InvalidIndexException;
 import com.thoughtworks.rslist.exception.InvalidParamException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
@@ -8,6 +9,7 @@ import com.thoughtworks.rslist.service.RsEventService;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thoughtworks.rslist.dto.RsEvent;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -99,5 +102,13 @@ public class RsController {
         index--;
 
         return ResponseEntity.ok(rsList.remove(index));
+    }
+
+    @PostMapping("/votes/{rsEventId}")
+    @ResponseBody
+    public Vote createVote(@RequestBody Vote vote, @PathVariable int rsEventId) {
+        vote.setRsEventId(rsEventId);
+
+        return rsEventService.createVote(vote);
     }
 }

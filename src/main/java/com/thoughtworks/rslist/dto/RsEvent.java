@@ -39,6 +39,8 @@ public class RsEvent extends BaseDto {
     @JsonView(WithUserView.class)
     private Integer userId;
 
+    private Integer votes;
+
     public RsEvent merge(RsEvent rsEvent) {
         if (rsEvent.eventName != null) {
             this.eventName = rsEvent.eventName;
@@ -65,6 +67,7 @@ public class RsEvent extends BaseDto {
                 .eventName(rsEventEntity.getEventName())
                 .keyword(rsEventEntity.getKeyword())
                 .userId(rsEventEntity.getUser().getId())
+                .votes(rsEventEntity.getVotes())
                 .build();
     }
 }

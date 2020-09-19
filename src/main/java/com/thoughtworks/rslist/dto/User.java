@@ -52,6 +52,8 @@ public class User extends BaseDto {
     @JsonProperty("user_phone")
     private String phone;
 
+    private Integer votes;
+
     public static User from(UserEntity userEntity) {
         return User.builder()
                 .id(userEntity.getId())
@@ -60,6 +62,7 @@ public class User extends BaseDto {
                 .email(userEntity.getEmail())
                 .phone(userEntity.getPhone())
                 .age(userEntity.getAge())
+                .votes(userEntity.getVotes())
                 .build();
     }
 }

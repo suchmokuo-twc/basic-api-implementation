@@ -1,11 +1,13 @@
 package com.thoughtworks.rslist.controller;
 
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
 import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.entity.VoteEntity;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.thoughtworks.rslist.repository.VoteRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static com.thoughtworks.rslist.utils.EntityUtil.createDemoRsEventEntity;
 import static com.thoughtworks.rslist.utils.EntityUtil.createDemoUserEntity;
@@ -45,11 +50,8 @@ class RsControllerTest {
     @Autowired
     RsEventRepository rsEventRepository;
 
-    @BeforeEach
-    void init() {
-        userRepository.deleteAll();
-        rsEventRepository.deleteAll();
-    }
+    @Autowired
+    VoteRepository voteRepository;
 
     @Test
     void should_get_all_rs_events() throws Exception {
@@ -240,5 +242,86 @@ class RsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("invalid param")));
+    }
+
+    @Test
+    void should_vote_success() throws Exception {
+        int voteNum = 5;
+        int currentRsEventVotes = 100;
+        int currentUserVotes = 10;
+
+        UserEntity demoUserEntity = createDemoUserEntity();
+        demoUserEntity.setVotes(currentUserVotes);
+        UserEntity userEntity = userRepository.save(demoUserEntity);
+
+        RsEventEntity demoRsEventEntity = createDemoRsEventEntity(userEntity);
+        demoRsEventEntity.setVotes(currentRsEventVotes);
+        RsEventEntity rsEventEntity = rsEventRepository.save(demoRsEventEntity);
+
+        Timestamp voteTime = getCurrentTime();
+
+        String voteJson = Vote.builder()
+                .voteNum(voteNum)
+                .voteTime(voteTime)
+                .userId(userEntity.getId())
+                .build()
+                .toJson();
+
+        mockMvc.perform(post("/rs/votes/" + rsEventEntity.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(voteJson))
+                .andExpect(status().isOk());
+
+        VoteEntity voteEntity = voteRepository.findById(1).get();
+
+        assertEquals(voteEntity.getUserId(), userEntity.getId());
+        assertEquals(voteEntity.getVoteNum(), voteNum);
+        assertEquals(voteEntity.getVoteTime(), voteTime);
+
+        userEntity = userRepository.findById(userEntity.getId()).get();
+        rsEventEntity = rsEventRepository.findById(rsEventEntity.getId()).get();
+
+        int userRemainVotes = currentUserVotes - voteNum;
+        int votedRsEventVotes = currentRsEventVotes + voteNum;
+
+        assertEquals(userEntity.getVotes(), userRemainVotes);
+        assertEquals(rsEventEntity.getVotes(), votedRsEventVotes);
+    }
+
+    @Test
+    void should_vote_fail_when_no_enough_votes() throws Exception {
+        int voteNum = 5;
+        int currentRsEventVotes = 100;
+        int currentUserVotes = 4;
+
+        UserEntity demoUserEntity = createDemoUserEntity();
+        demoUserEntity.setVotes(currentUserVotes);
+        UserEntity userEntity = userRepository.save(demoUserEntity);
+
+        RsEventEntity demoRsEventEntity = createDemoRsEventEntity(userEntity);
+        demoRsEventEntity.setVotes(currentRsEventVotes);
+        RsEventEntity rsEventEntity = rsEventRepository.save(demoRsEventEntity);
+
+        Timestamp voteTime = getCurrentTime();
+
+        String voteJson = Vote.builder()
+                .voteNum(voteNum)
+                .voteTime(voteTime)
+                .userId(userEntity.getId())
+                .build()
+                .toJson();
+
+        mockMvc.perform(post("/rs/votes/" + rsEventEntity.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(voteJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("user votes not enough")));
+    }
+
+    private Timestamp getCurrentTime() {
+        // remove milliseconds.
+        long timestamp = (System.currentTimeMillis() / 1000) * 1000;
+
+        return new Timestamp(timestamp);
     }
 }

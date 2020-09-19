@@ -33,6 +33,9 @@ public class RsEventEntity {
     @Column(nullable = false)
     private String keyword;
 
+    @Builder.Default
+    private Integer votes = 0;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;

@@ -39,6 +39,9 @@ public class UserEntity {
 
     private String phone;
 
+    @Builder.Default
+    private Integer votes = 10;
+
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "user")
     private List<RsEventEntity> rsEvents;
 
@@ -50,6 +53,7 @@ public class UserEntity {
                 .email(user.getEmail())
                 .gender(user.getGender())
                 .phone(user.getPhone())
+                .votes(user.getVotes())
                 .build();
     }
 }

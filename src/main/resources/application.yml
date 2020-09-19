@@ -9,3 +9,6 @@ spring:
     properties:
       hibernate:
         dialect: com.thoughtworks.rslist.config.MySQLCustomDialect
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true

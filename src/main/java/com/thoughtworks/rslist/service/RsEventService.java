@@ -1,11 +1,17 @@
 package com.thoughtworks.rslist.service;
 
 import com.thoughtworks.rslist.dto.RsEvent;
+import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.entity.RsEventEntity;
+import com.thoughtworks.rslist.entity.UserEntity;
+import com.thoughtworks.rslist.entity.VoteEntity;
 import com.thoughtworks.rslist.exception.InvalidUserIdException;
 import com.thoughtworks.rslist.exception.RsEventNotFoundException;
+import com.thoughtworks.rslist.exception.UserNotFoundException;
+import com.thoughtworks.rslist.exception.UserVotesNotEnoughException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
+import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +23,9 @@ public class RsEventService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private VoteRepository voteRepository;
 
     public RsEvent createRsEvent(RsEvent rsEvent) {
         Integer userId = rsEvent.getUserId();
@@ -47,5 +56,35 @@ public class RsEventService {
         rsEventRepository.save(updatedRsEventEntity);
 
         return RsEvent.from(updatedRsEventEntity);
+    }
+
+    public Vote createVote(Vote vote) {
+        Integer rsEventId = vote.getRsEventId();
+
+        RsEventEntity rsEventEntity = rsEventRepository.findById(rsEventId)
+                .orElseThrow(RsEventNotFoundException::new);
+
+        Integer userId = vote.getUserId();
+
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Integer voteNum = vote.getVoteNum();
+        Integer userRemainVotes = userEntity.getVotes();
+        int userRemainVotesAfterVoting = userRemainVotes - voteNum;
+
+        if (userRemainVotesAfterVoting < 0) {
+            throw new UserVotesNotEnoughException();
+        }
+
+        rsEventEntity.setVotes(rsEventEntity.getVotes() + voteNum);
+        userEntity.setVotes(userRemainVotesAfterVoting);
+
+        rsEventRepository.save(rsEventEntity);
+        userRepository.save(userEntity);
+
+        VoteEntity voteEntity = voteRepository.save(VoteEntity.from(vote));
+
+        return Vote.from(voteEntity);
     }
 }
