@@ -55,9 +55,16 @@ class RsControllerTest {
 
     @Test
     void should_get_all_rs_events() throws Exception {
+        int eventsNum = 3;
+
+        for (int i = 0; i < eventsNum; i++) {
+            UserEntity user = userRepository.save(createDemoUserEntity());
+            rsEventRepository.save(createDemoRsEventEntity(user));
+        }
+
         mockMvc.perform(get("/rs/events"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
+                .andExpect(jsonPath("$", hasSize(eventsNum)));
     }
 
     @Test
@@ -112,15 +119,11 @@ class RsControllerTest {
 
     @Test
     void should_delete_rs_event() throws Exception {
-        String deletedRsEventJson = RsEvent.builder()
-                .eventName("第一条事件")
-                .keyword("无分类")
-                .build()
-                .toJson();
+        UserEntity user = userRepository.save(createDemoUserEntity());
+        rsEventRepository.save(createDemoRsEventEntity(user));
 
         mockMvc.perform(delete("/rs/events/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(deletedRsEventJson));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -225,10 +228,10 @@ class RsControllerTest {
     }
 
     @Test
-    void should_get_event_error_when_invalid_index() throws Exception {
+    void should_get_event_error_when_invalid_id() throws Exception {
         mockMvc.perform(get("/rs/events/10"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid index")));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error", is("no such event")));
     }
 
     @Test

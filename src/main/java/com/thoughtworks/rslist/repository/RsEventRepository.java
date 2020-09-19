@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface RsEventRepository extends CrudRepository<RsEventEntity, Integer> {
 
+    List<RsEventEntity> findAll();
+
     List<RsEventEntity> findAllByUserId(Integer userId);
 
     boolean existsByIdAndUserId(Integer id, Integer userId);

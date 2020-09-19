@@ -15,6 +15,9 @@ import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class RsEventService {
 
@@ -86,5 +89,26 @@ public class RsEventService {
         VoteEntity voteEntity = voteRepository.save(VoteEntity.from(vote));
 
         return Vote.from(voteEntity);
+    }
+
+    public List<RsEvent> getAllRsEvents() {
+        return rsEventRepository.findAll()
+                .stream()
+                .map(RsEvent::from)
+                .collect(Collectors.toList());
+    }
+
+    public RsEvent getRsEventById(int id) {
+        return rsEventRepository.findById(id)
+                .map(RsEvent::from)
+                .orElseThrow(RsEventNotFoundException::new);
+    }
+
+    public void deleteRsEventById(int id) {
+        if (!rsEventRepository.existsById(id)) {
+            throw new RsEventNotFoundException();
+        }
+
+        rsEventRepository.deleteById(id);
     }
 }

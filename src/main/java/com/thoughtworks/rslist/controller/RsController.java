@@ -2,14 +2,12 @@ package com.thoughtworks.rslist.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thoughtworks.rslist.dto.Vote;
-import com.thoughtworks.rslist.exception.InvalidIndexException;
 import com.thoughtworks.rslist.exception.InvalidParamException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
 import com.thoughtworks.rslist.service.RsEventService;
 import com.thoughtworks.rslist.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.thoughtworks.rslist.dto.RsEvent;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -38,20 +35,11 @@ public class RsController {
     @Autowired
     private RsEventService rsEventService;
 
-    private final List<RsEvent> rsList;
-
-    public RsController() {
-        rsList = new ArrayList<RsEvent>() {{
-            add(RsEvent.builder().eventName("第一条事件").keyword("无分类").build());
-            add(RsEvent.builder().eventName("第二条事件").keyword("无分类").build());
-            add(RsEvent.builder().eventName("第三条事件").keyword("无分类").build());
-        }};
-    }
-
     @GetMapping("/events")
     @JsonView(RsEvent.WithoutUserView.class)
     public ResponseEntity<List<RsEvent>> getAllRsEvents(@RequestParam(required = false) Integer start,
                                                         @RequestParam(required = false) Integer end) {
+        List<RsEvent> rsList = rsEventService.getAllRsEvents();
 
         if (start == null && end == null) {
             return ResponseEntity.ok(rsList);
@@ -64,14 +52,11 @@ public class RsController {
         }
     }
 
-    @GetMapping("/events/{index}")
+    @GetMapping("/events/{id}")
     @JsonView(RsEvent.WithoutUserView.class)
-    public ResponseEntity<RsEvent> getEvent(@PathVariable int index) {
-        try {
-            return ResponseEntity.ok(rsList.get(index));
-        } catch (Exception ex) {
-            throw new InvalidIndexException();
-        }
+    @ResponseBody
+    public RsEvent getRsEventById(@PathVariable int id) {
+        return rsEventService.getRsEventById(id);
     }
 
     @PostMapping("/events")
@@ -97,11 +82,9 @@ public class RsController {
         return ResponseEntity.ok(updatedRsEvent);
     }
 
-    @DeleteMapping("/events/{index}")
-    public ResponseEntity<RsEvent> deleteRsEvent(@PathVariable int index) {
-        index--;
-
-        return ResponseEntity.ok(rsList.remove(index));
+    @DeleteMapping("/events/{id}")
+    public void deleteRsEventById(@PathVariable int id) {
+        rsEventService.deleteRsEventById(id);
     }
 
     @PostMapping("/votes/{rsEventId}")
