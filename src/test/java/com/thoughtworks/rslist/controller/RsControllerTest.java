@@ -18,7 +18,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 import static com.thoughtworks.rslist.utils.EntityUtil.createDemoRsEventEntity;
 import static com.thoughtworks.rslist.utils.EntityUtil.createDemoUserEntity;
@@ -29,7 +28,6 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -128,13 +126,7 @@ class RsControllerTest {
 
     @Test
     void should_create_rs_event() throws Exception {
-        UserEntity userEntity = userRepository.save(UserEntity.builder()
-                .userName("name")
-                .age(20)
-                .email("a@b.com")
-                .gender("male")
-                .phone("10000000000")
-                .build());
+        UserEntity userEntity = userRepository.save(createDemoUserEntity());
 
         Integer userId = userEntity.getId();
 

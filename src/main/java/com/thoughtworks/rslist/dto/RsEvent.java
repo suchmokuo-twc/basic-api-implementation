@@ -24,6 +24,7 @@ public class RsEvent extends BaseDto {
     public interface WithoutUserView {}
     public interface WithUserView extends WithoutUserView {}
 
+    @JsonView(WithoutUserView.class)
     private Integer id;
 
     @NotEmpty
@@ -39,6 +40,7 @@ public class RsEvent extends BaseDto {
     @JsonView(WithUserView.class)
     private Integer userId;
 
+    @JsonView(WithoutUserView.class)
     private Integer votes;
 
     public RsEvent merge(RsEvent rsEvent) {
