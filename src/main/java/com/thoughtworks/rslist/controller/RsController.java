@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -93,5 +95,12 @@ public class RsController {
         vote.setRsEventId(rsEventId);
 
         return rsEventService.createVote(vote);
+    }
+
+    @GetMapping("/votes")
+    @ResponseBody
+    public List<Vote> getVotes(@RequestParam @NotNull Timestamp startTime,
+                               @RequestParam @NotNull Timestamp endTime) {
+        return rsEventService.getVotes(startTime, endTime);
     }
 }

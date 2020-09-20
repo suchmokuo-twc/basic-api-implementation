@@ -313,10 +313,43 @@ class RsControllerTest {
                 .andExpect(jsonPath("$.error", is("user votes not enough")));
     }
 
+    @Test
+    void should_get_votes() throws Exception {
+        Timestamp now = getCurrentTime();
+        Timestamp fiveSecondsAgo = new Timestamp(now.getTime() - 5000);
+        Timestamp fiveSecondsLater = new Timestamp(now.getTime() + 5000);
+
+        voteRepository.save(VoteEntity.builder()
+                .voteTime(fiveSecondsAgo)
+                .build());
+
+        voteRepository.save(VoteEntity.builder()
+                .voteTime(now)
+                .build());
+
+        voteRepository.save(VoteEntity.builder()
+                .voteTime(fiveSecondsLater)
+                .build());
+
+        Timestamp twoSecondsAgo = new Timestamp(now.getTime() - 2000);
+        Timestamp twoSecondsLater = new Timestamp(now.getTime() + 2000);
+
+        mockMvc.perform(get("/rs/votes")
+                .queryParam("startTime", toTimestampString(twoSecondsAgo))
+                .queryParam("endTime", toTimestampString(twoSecondsLater)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].voteTime", is(now.getTime())));
+    }
+
     private Timestamp getCurrentTime() {
         // remove milliseconds.
         long timestamp = (System.currentTimeMillis() / 1000) * 1000;
 
         return new Timestamp(timestamp);
+    }
+
+    private String toTimestampString(Timestamp timestamp) {
+        return String.valueOf(timestamp.getTime());
     }
 }
