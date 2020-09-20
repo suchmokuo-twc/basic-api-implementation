@@ -114,7 +114,7 @@ public class RsEventService {
     }
 
     public List<Vote> getVotes(Timestamp startTime, Timestamp endTime) {
-        return voteRepository.findAllByVoteTimeBetween(startTime, endTime)
+        return voteRepository.findAllByVoteTime(startTime, endTime)
                 .stream()
                 .map(Vote::from)
                 .collect(Collectors.toList());
