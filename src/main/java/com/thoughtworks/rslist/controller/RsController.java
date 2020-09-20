@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.thoughtworks.rslist.dto.Vote;
 import com.thoughtworks.rslist.exception.InvalidParamException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
-import com.thoughtworks.rslist.service.RsEventService;
-import com.thoughtworks.rslist.service.UserService;
+import com.thoughtworks.rslist.service.RsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -31,17 +30,18 @@ import java.util.List;
 @RequestMapping(path = "/rs", produces = "application/json; charset=utf-8")
 public class RsController {
 
-    @Autowired
-    private UserService userService;
+    private final RsService rsService;
 
     @Autowired
-    private RsEventService rsEventService;
+    public RsController(RsService rsService) {
+        this.rsService = rsService;
+    }
 
     @GetMapping("/events")
     @JsonView(RsEvent.WithoutUserView.class)
     public ResponseEntity<List<RsEvent>> getAllRsEvents(@RequestParam(required = false) Integer start,
                                                         @RequestParam(required = false) Integer end) {
-        List<RsEvent> rsList = rsEventService.getAllRsEvents();
+        List<RsEvent> rsList = rsService.getAllRsEvents();
 
         if (start == null && end == null) {
             return ResponseEntity.ok(rsList);
@@ -58,7 +58,7 @@ public class RsController {
     @JsonView(RsEvent.WithoutUserView.class)
     @ResponseBody
     public RsEvent getRsEventById(@PathVariable int id) {
-        return rsEventService.getRsEventById(id);
+        return rsService.getRsEventById(id);
     }
 
     @PostMapping("/events")
@@ -67,7 +67,7 @@ public class RsController {
             throw new InvalidParamException();
         }
 
-        RsEvent createdRsEvent = rsEventService.createRsEvent(rsEvent);
+        RsEvent createdRsEvent = rsService.createRsEvent(rsEvent);
 
         int eventId = createdRsEvent.getId();
 
@@ -79,14 +79,14 @@ public class RsController {
     @PatchMapping("/events/{id}")
     public ResponseEntity<RsEvent> updateRsEvent(@RequestBody RsEvent rsEvent, @PathVariable int id) {
         rsEvent.setId(id);
-        RsEvent updatedRsEvent = rsEventService.updateRsEvent(rsEvent);
+        RsEvent updatedRsEvent = rsService.updateRsEvent(rsEvent);
 
         return ResponseEntity.ok(updatedRsEvent);
     }
 
     @DeleteMapping("/events/{id}")
     public void deleteRsEventById(@PathVariable int id) {
-        rsEventService.deleteRsEventById(id);
+        rsService.deleteRsEventById(id);
     }
 
     @PostMapping("/votes/{rsEventId}")
@@ -94,13 +94,13 @@ public class RsController {
     public Vote createVote(@RequestBody Vote vote, @PathVariable int rsEventId) {
         vote.setRsEventId(rsEventId);
 
-        return rsEventService.createVote(vote);
+        return rsService.createVote(vote);
     }
 
     @GetMapping("/votes")
     @ResponseBody
     public List<Vote> getVotes(@RequestParam @NotNull Timestamp startTime,
                                @RequestParam @NotNull Timestamp endTime) {
-        return rsEventService.getVotes(startTime, endTime);
+        return rsService.getVotes(startTime, endTime);
     }
 }

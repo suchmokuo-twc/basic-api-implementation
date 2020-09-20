@@ -13,23 +13,25 @@ import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-public class RsEventService {
+public class RsService {
+
+    private final RsEventRepository rsEventRepository;
+    private final UserRepository userRepository;
+    private final VoteRepository voteRepository;
 
     @Autowired
-    private RsEventRepository rsEventRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private VoteRepository voteRepository;
+    public RsService(RsEventRepository rsEventRepository,
+                     UserRepository userRepository,
+                     VoteRepository voteRepository) {
+        this.rsEventRepository = rsEventRepository;
+        this.userRepository = userRepository;
+        this.voteRepository = voteRepository;
+    }
 
     public RsEvent createRsEvent(RsEvent rsEvent) {
         Integer userId = rsEvent.getUserId();
